@@ -1,0 +1,13 @@
+interface:
+  display_name: 'Blender: модульные сцены'
+  short_description: 'От блокинга до сцены: моделинг, кривые и анимация'
+  default_prompt: 'Используй $blender-modular-scenes: определи нужную глубину проработки, изучи референсы и выбери инструменты для проверяемого результата — от блокинга до готовой сцены.'
+  icon_small: 'assets/icon.svg'
+  icon_large: 'assets/icon.svg'
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

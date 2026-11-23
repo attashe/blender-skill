@@ -1,0 +1,28 @@
+{
+  "id": "cables",
+  "procedural": true,
+  "budget": {
+    "max_expanded_triangles": 13000,
+    "max_expanded_vertices": 6500,
+    "max_instances": 12
+  },
+  "complexity": {
+    "controls": {
+      "path_samples": {"min": 8, "value": 32, "max": 64},
+      "profile_sides": {"min": 4, "value": 8, "max": 8},
+      "cable_count": {"min": 1, "value": 6, "max": 12}
+    },
+    "model": {
+      "type": "repeat",
+      "count": "cable_count",
+      "geometry": {
+        "type": "sweep",
+        "path_points": "path_samples",
+        "profile_points": "profile_sides",
+        "path_cyclic": false,
+        "profile_cyclic": true,
+        "caps": true
+      }
+    }
+  }
+}

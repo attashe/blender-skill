@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "project": {
+    "name": "Two modular information terminals",
+    "units": "meters",
+    "up_axis": "Z",
+    "relative_libraries": true,
+    "deliverables": ["foyer"],
+    "budget_note": "Illustrative provisional limits for this small stylized example; replace for the actual target."
+  },
+  "requirements": [
+    {
+      "id": "replaceable_display",
+      "description": "A replaceable screen enclosed by a visible bezel",
+      "nodes": ["panel", "bezel", "display"],
+      "acceptance": [
+        {"id": "panel_size", "node": "panel", "description": "Evaluated dimensions meet the panel contract"},
+        {"id": "bezel_shape", "node": "bezel", "description": "A real opening surrounds the panel; inspect edge shading"},
+        {"id": "display_fit", "node": "display", "description": "Panel aligns with bezel; no obstruction of its visible area"}
+      ]
+    },
+    {
+      "id": "terminal_hardware",
+      "description": "A freestanding terminal body with a replaceable card reader",
+      "nodes": ["body", "reader", "terminal"],
+      "acceptance": [
+        {"id": "body_sockets", "node": "body", "description": "Display and reader sockets exist at suitable mounting positions"},
+        {"id": "reader_slot", "node": "reader", "description": "Card opening is visible at the intended detail camera distance"},
+        {"id": "terminal_mounting", "node": "terminal", "description": "Display and reader align with body sockets; origin remains at floor contact"}
+      ]
+    },
+    {
+      "id": "placement_and_reuse",
+      "description": "Place two instances of one terminal module on a floor with a clear route between them",
+      "nodes": ["floor", "foyer"],
+      "acceptance": [
+        {"id": "floor_dimensions", "node": "floor", "description": "Floor measures 6 × 4 × 0.08 m"},
+        {"id": "two_instances", "node": "foyer", "description": "Exactly two terminal module instances share one linked source"},
+        {"id": "clear_route", "node": "foyer", "description": "Measured route clearance is at least 1.2 m"},
+        {"id": "source_update", "node": "foyer", "description": "A controlled source update propagates after reload without breaking mounting/placement"}
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "panel", "kind": "part", "file": "assets/parts/panel.blend", "root_collection": "AST_panel",
+      "deps": [], "status": "planned",
+      "method": {"selected": "mesh + shallow bevel + emissive material", "why": "One unique thin screen with a clear silhouette", "alternative": "GN primitive adds no useful parameter reuse here"},
+      "contract": {"pivot": "Local center of rear mounting surface", "dimensions_m": [0.6, 0.018, 0.38], "tolerance_m": 0.001, "sockets": []},
+      "budget": {"max_expanded_triangles": 800}, "evidence": {}
+    },
+    {
+      "id": "bezel", "kind": "part", "file": "assets/parts/bezel.blend", "root_collection": "AST_bezel",
+      "deps": [], "status": "planned",
+      "method": {"selected": "frame mesh + bevel modifier", "why": "Explicit rectangular opening with editable edge treatment", "alternative": "An opaque box would conceal the panel"},
+      "contract": {"pivot": "Rear mounting surface center", "dimensions_m": [0.68, 0.04, 0.46], "tolerance_m": 0.003, "sockets": []},
+      "budget": {"max_expanded_triangles": 1500}, "evidence": {}
+    },
+    {
+      "id": "body", "kind": "part", "file": "assets/parts/body.blend", "root_collection": "AST_body",
+      "deps": [], "status": "planned",
+      "method": {"selected": "fixed explicit shell mesh with shallow edge bevel", "why": "Unique housing with no requested vent system", "alternative": "A procedural vent family would need its own bounded controls and acceptance checks"},
+      "contract": {"pivot": "Center of floor-contact footprint", "sockets": ["SOCKET_display", "SOCKET_reader"]},
+      "budget": {"max_expanded_triangles": 5000}, "evidence": {}
+    },
+    {
+      "id": "reader", "kind": "part", "file": "assets/parts/reader.blend", "root_collection": "AST_reader",
+      "deps": [], "status": "planned",
+      "method": {"selected": "hard-surface mesh with slot and bevel", "why": "Small replaceable component with one visible functional opening", "alternative": "Shader-only slot fails a close silhouette view"},
+      "contract": {"pivot": "Rear mounting surface center", "dimensions_m": [0.12, 0.04, 0.16], "tolerance_m": 0.003, "sockets": []},
+      "budget": {"max_expanded_triangles": 1000}, "evidence": {}
+    },
+    {
+      "id": "floor", "kind": "part", "file": "assets/parts/floor.blend", "root_collection": "AST_floor",
+      "deps": [], "status": "planned",
+      "method": {"selected": "simple slab mesh", "why": "A single planar support surface needs no procedural machinery", "alternative": "A dense tiled mesh would add invisible geometry"},
+      "contract": {"pivot": "Center of upper walking surface", "dimensions_m": [6.0, 4.0, 0.08], "tolerance_m": 0.001, "sockets": []},
+      "budget": {"max_expanded_triangles": 100}, "evidence": {}
+    },
+    {
+      "id": "display", "kind": "assembly", "file": "assets/assemblies/display.blend", "root_collection": "ASM_display",
+      "deps": ["panel", "bezel"], "status": "planned",
+      "method": {"selected": "linked collection instances", "why": "Screen and bezel remain separately replaceable", "alternative": "Joining geometry removes source update propagation"},
+      "contract": {"pivot": "Shared rear mounting surface center", "sockets": []},
+      "budget": {"max_expanded_triangles": 2300, "max_evaluated_objects": 30}, "inline_geometry": [], "evidence": {}
+    },
+    {
+      "id": "terminal", "kind": "module", "file": "assets/modules/terminal.blend", "root_collection": "MOD_terminal",
+      "deps": ["body", "reader", "display"], "status": "planned",
+      "method": {"selected": "linked children placed at body sockets", "why": "One repeatable equipment module with replaceable components", "alternative": "Duplicating a whole scene would copy every mesh/material"},
+      "contract": {"pivot": "Center of floor-contact footprint", "sockets": []},
+      "budget": {"max_expanded_triangles": 9000, "max_evaluated_objects": 60}, "inline_geometry": [], "evidence": {}
+    },
+    {
+      "id": "foyer", "kind": "scene", "file": "scenes/foyer.blend", "root_collection": "SCN_foyer",
+      "deps": ["terminal", "floor"], "status": "planned",
+      "method": {"selected": "two terminal collection instances + floor reference", "why": "One terminal source drives both placed occurrences", "alternative": "Appending twice creates independent geometry copies"},
+      "contract": {"pivot": "World origin at floor center", "sockets": []},
+      "budget": {"max_expanded_triangles": 20000, "max_evaluated_objects": 150}, "inline_geometry": [], "evidence": {}
+    }
+  ]
+}
